@@ -1,66 +1,48 @@
 const {
     category: categoryModel,
-    "categories-relation": categoryRelationModel
+    "categories_relation": categoryRelationModel
 } = require("../sequelize/models");
 
-const getCategoriesRelations = (_, response) => {
-    categoryRelationModel
-        .findAll()
-        .then(categoriesRelations =>
-            response.status(200).json(categoriesRelations)
-        );
+const getCategoriesRelations = async function(_, response) {
+    const categoriesRelations = await categoryRelationModel.findAll();
+    response.status(200).json(categoriesRelations);
 };
 
-const getCategoryRelation = (request, response) => {
-    categoryRelationModel
-        .findByPk(request.params.categoryRelationId)
-        .then(categoryRelation => response.status(200).json(categoryRelation));
+const getCategoryRelation = async function(request, response) {
+    const categoryRelation = await categoryRelationModel.findByPk(request.params.categoryRelationId)
+    response.status(200).json(categoryRelation);
 };
 
-const addCategoryRelation = (request, response) => {
-    categoryModel.findByPk(request.body.categoryId).then(category => {
-        if (category) {
-            categoryModel
-                .findByPk(request.body.relatedCategoryId)
-                .then(category => {
-                    if (category) {
-                        categoryRelationModel
-                            .create(request.body)
-                            .then(categoryRelation =>
-                                response
-                                    .status(201)
-                                    .json({ id: categoryRelation.id })
-                            );
-                    } else {
-                        response
-                            .status(409)
-                            .send("Related category doesn't exist");
-                    }
-                });
-        } else {
-            response.status(409).send("Category doesn't exist");
-        }
-    });
-};
-
-const updateCategoryRelation = (request, response) => {
-    categoryModel.findByPk(request.body.relatedCategoryId).then(category => {
-        if (category) {
-            categoryRelationModel
-                .update(request.body, {
-                    where: { id: request.params.categoryRelationId }
-                })
-                .then(_ => response.status(202).send());
+const addCategoryRelation = async function(request, response) {
+    const category = await categoryModel.findByPk(request.body.categoryId);
+    if (category) {
+        const existingCategory = await categoryModel.findByPk(request.body.relatedCategoryId);
+        if (existingCategory) {
+            const categoryRelation = await categoryRelationModel.create(request.body);
+            response.status(201).json({ id: categoryRelation.id });
         } else {
             response.status(409).send("Related category doesn't exist");
         }
-    });
+    } else {
+        response.status(409).send("Category doesn't exist");
+    }
 };
 
-const deleteCategoryRelation = (request, response) => {
-    categoryRelationModel
-        .destroy({ where: { id: request.params.categoryRelationId } })
-        .then(_ => response.status(202).send());
+const updateCategoryRelation = async function(request, response) {
+    const category = await categoryModel.findByPk(request.body.relatedCategoryId);
+    if (category) {
+        await categoryRelationModel.update(request.body, {
+            where: { id: request.params.categoryRelationId }
+        });
+        response.status(202).send();
+    } else {
+        response.status(409).send("Related category doesn't exist");
+    }
+};
+
+const deleteCategoryRelation = async function(request, response) {
+    await categoryRelationModel.destroy({ where: { id: request.params.categoryRelationId } });
+    response.status(202).send();
 };
 
 module.exports = {

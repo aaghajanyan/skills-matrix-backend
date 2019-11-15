@@ -4,14 +4,14 @@ const {
     "skills_relation": skillRelationModel
 } = require("../sequelize/models");
 
-const getSkills = (_, response) => {
-    skillModel.findAll().then(skills => response.status(200).json(skills));
+const getSkills = async function(_, response) {
+    const skills = await skillModel.findAll();
+    response.status(200).json(skills);
 };
 
-const getSkill = (request, response) => {
-    skillModel
-        .findByPk(request.params.skillId)
-        .then(skill => response.status(200).json(skill));
+const getSkill = async function(request, response) {
+    const skill = await skillModel.findByPk(request.params.skillId);
+    response.status(200).json(skill);
 };
 
 const addSkill = (request, response) => {
@@ -109,18 +109,16 @@ const addSkill = (request, response) => {
 //     }
 // };
 
-const updateSkill = (request, response) => {
-    skillModel
-        .update(request.body, {
-            where: { id: request.params.skillId }
-        })
-        .then(_ => response.status(202).send());
+const updateSkill = async function(request, response) {
+    await skillModel.update(request.body, {
+        where: { id: request.params.skillId }
+    });
+    response.status(202).send();
 };
 
-const deleteSkill = (request, response) => {
-    skillModel
-        .destroy({ where: { id: request.params.skillId } })
-        .then(_ => response.status(202).send());
+const deleteSkill = async function(request, response) {
+    await skillModel.destroy({ where: { id: request.params.skillId } });
+    response.status(202).send();
 };
 
 module.exports = {

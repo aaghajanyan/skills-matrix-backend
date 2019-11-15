@@ -1,59 +1,49 @@
 const {
     skill: skillModel,
     category: categoryModel,
-    "skills-relation": skillRelationModel
+    "skills_relation": skillRelationModel
 } = require("../sequelize/models");
 
-const getSkillsRelations = (_, response) => {
-    skillRelationModel
-        .findAll()
-        .then(skillsRelations => response.status(200).json(skillsRelations));
+const getSkillsRelations = async function(_, response) {
+    const skillsRelations = await skillRelationModel.findAll();
+    response.status(200).json(skillsRelations);
 };
 
-const getSkillRelation = (request, response) => {
-    skillRelationModel
-        .findByPk(request.params.skillRelationId)
-        .then(skillRelation => response.status(200).json(skillRelation));
+const getSkillRelation = async function(request, response) {
+    const skillRelation = await skillRelationModel.findByPk(request.params.skillRelationId);
+    response.status(200).json(skillRelation);
 };
 
-const addSkillRelation = (request, response) => {
-    categoryModel.findByPk(request.body.categoryId).then(category => {
-        if (category) {
-            skillModel.findByPk(request.body.skillId).then(skill => {
-                if (skill) {
-                    skillRelationModel
-                        .create(request.body)
-                        .then(skillRelation =>
-                            response.status(201).json({ id: skillRelation.id })
-                        );
-                } else {
-                    response.status(409).send("Skill doesn't exist");
-                }
-            });
+const addSkillRelation =  async function(request, response) {
+    const category = await categoryModel.findByPk(request.body.categoryId);
+    if (category) {
+        const skill = await skillModel.findByPk(request.body.skillId);
+        if (skill) {
+            const skillRelation = await skillRelationModel.create(request.body);
+            response.status(201).json({ id: skillRelation.id })
         } else {
-            response.status(409).send("Category doesn't exist");
+            response.status(409).send("Skill doesn't exist");
         }
-    });
+    } else {
+        response.status(409).send("Category doesn't exist");
+    }
 };
 
-const updateSkillRelation = (request, response) => {
-    categoryModel.findByPk(request.body.categoryId).then(category => {
-        if (category) {
-            skillRelationModel
-                .update(request.body, {
-                    where: { id: request.params.skillRelationId }
-                })
-                .then(_ => response.status(202).send());
-        } else {
-            response.status(409).send("Category doesn't exist");
-        }
-    });
+const updateSkillRelation =  async function(request, response) {
+    const category = await categoryModel.findByPk(request.body.categoryId);
+    if (category) {
+        await skillRelationModel.update(request.body, {
+            where: { id: request.params.skillRelationId }
+        });
+        response.status(202).send();
+    } else {
+        response.status(409).send("Category doesn't exist");
+    }
 };
 
-const deleteSkillRelation = (request, response) => {
-    skillRelationModel
-        .destroy({ where: { id: request.params.skillRelationId } })
-        .then(_ => response.status(202).send());
+const deleteSkillRelation =  async function(request, response) {
+    await skillRelationModel.destroy({ where: { id: request.params.skillRelationId } });
+    response.status(202).send();
 };
 
 module.exports = {
