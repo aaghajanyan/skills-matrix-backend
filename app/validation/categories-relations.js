@@ -1,32 +1,18 @@
 const Joi = require("joi");
 
-const passwordExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,24})/;
-const nameExp = /^[a-z]{2,20}$/i;
-
 const addBodySchema = Joi.object().keys({
-    invitationId: Joi.string()
-        .uuid()
-        .required(),
-    password: Joi.string()
-        .regex(passwordExp)
-        .required(),
-    fname: Joi.string()
-        .regex(nameExp)
-        .required(),
-    lname: Joi.string()
-        .regex(nameExp)
-        .required(),
-    branchName: Joi.string()
-        .regex(nameExp)
-        .required(),
-    roleGroupId: Joi.number()
+    categoryId: Joi.number()
         .integer()
-        .disallow(Joi.ref("role_group"))
-        .required() 
+        .required(),
+    relatedCategoryId: Joi.number()
+        .integer()
+        .disallow(Joi.ref("categoryId"))
+        .required()
 });
-
 const updateBodySchema = Joi.object().keys({
-    password: Joi.string().regex(passwordExp)
+    relatedCategoryId: Joi.number()
+        .integer()
+        .required()
 });
 
 const validateAddBody = (request, response, next) => {

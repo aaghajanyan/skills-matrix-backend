@@ -1,21 +1,17 @@
 module.exports = {
     up: (queryInterface, Sequelize) => {
-        return queryInterface.createTable("users", {
+        return queryInterface.createTable("roles_groups", {
             id: {
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            email: {
+            name: {
                 unique: true,
                 allowNull: false,
-                type: Sequelize.STRING
-            },
-            password: {
-                allowNull: false,
-                type: Sequelize.STRING
+                type: Sequelize.ENUM('super_user', 'team_lead', 'visitor')
             }
         });
     },
-    down: queryInterface => queryInterface.dropTable("users")
+    down: queryInterface => queryInterface.dropTable("roles_groups")
 };

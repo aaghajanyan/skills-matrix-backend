@@ -25,6 +25,43 @@ module.exports = (sequelize, DataTypes) => {
                     args: false,
                     msg: "Please enter a password"
                 },
+            },
+            fname: {
+                type: DataTypes.STRING,
+                allowNull: {
+                    args: false,
+                    msg: "Please enter a firstname"
+                },
+            },
+            lname: {
+                type: DataTypes.STRING,
+                allowNull: {
+                    args: false,
+                    msg: "Please enter a lastname"
+                },
+            },
+            branchName: {
+                type: DataTypes.STRING,
+                allowNull: {
+                    args: false,
+                    msg: "Please enter a branch name"
+                },
+            },
+            uuid: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+            },
+            isActive: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true
+            },
+            createdDate: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW
+            },
+            roleGroupId: {
+                allowNull: false,
+                type: DataTypes.INTEGER,
             }
         },
         {

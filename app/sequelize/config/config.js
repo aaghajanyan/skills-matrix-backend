@@ -6,5 +6,7 @@ module.exports = {
       password: dbConfig.password,
       database: dbConfig.database,
       ...dbConfig.options
-    }
+    },
+    roles: ['create_user', 'create_skill', 'update_skill', 'menage_team', 'visitor'],
+    rolesGroups: ['super_user', 'team_lead', 'visitor']
   };

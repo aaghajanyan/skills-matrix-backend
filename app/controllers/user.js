@@ -25,10 +25,13 @@ const signUp = (request, response) => {
             return response.status(404).send("Invitation doesn't exist");
         }
         request.body.email = invitation.email;
-        invitation.destroy();
-        User.create(request.body).then(user =>
-            response.status(201).json({ id: user.id })
-        );
+        request.body["uuid"] = invitation.id;
+        console.log(request.body);
+        
+        User.create(request.body).then(user => {
+            invitation.destroy();
+            response.status(201).json({ id: user.id, isActive: user.isActive})
+        });
     });
 };
 

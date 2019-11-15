@@ -8,8 +8,11 @@ const checkInvitationInDB = (request, response) => {
 
 const addInvitation = (request, response) => {
     invitationModel.findOne({ where: { email: request.body.email } }).then(invitation => {
+        console.log(`invitation ${invitation}`);
         if (!invitation) {
+            console.log(`invitation! ${invitation}`);
             userModel.findOne({ where: { email: request.body.email } }).then(user => {
+                console.log(`user ${user}`);
                 if (!user) {
                     invitationModel.create(request.body).then(invitation => {
                         response.status(200).json({ id: invitation.id });
