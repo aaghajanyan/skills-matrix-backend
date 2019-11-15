@@ -61,7 +61,11 @@ module.exports = (sequelize, DataTypes) => {
             },
             startedToWork: {
                 type: DataTypes.DATE,
-                defaultValue: DataTypes.NOW
+                defaultValue: DataTypes.NOW,
+                allowNull: {
+                    args: false,
+                    msg: "Please enter worked date"
+                },
             },
             roleGroupId: {
                 allowNull: false,

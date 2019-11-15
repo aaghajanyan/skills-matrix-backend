@@ -1,38 +1,37 @@
 const { user: userModel, invitation: invitationModel } = require("../sequelize/models");
 const User = require("../models/user");
 
-const getUsers = (_, response) => {
-    userModel.findAll({ attributes: { exclude: ["password"] } }).then(users =>
-        response.status(200).json(users)
-    );
+const getUsers = async function(_, response) {
+    const users = await userModel.findAll({ attributes: { exclude: ["password"] } });
+    response.status(200).json(users);
 };
 
-const getUser = (request, response) => {
-    userModel.findByPk(request.params.userId, {
+const getUser = async function(request, response) {
+    const user = await userModel.findByPk(request.params.userId, {
         attributes: { exclude: ["password"] }
-    }).then(user => response.status(200).json(user));
+    });
+    response.status(200).json(user);
 };
 
-const updateUser = (request, response) => {
-    User.update(request.params.userId, request.body).then(_ =>
-        response.status(202).send()
-    );
+const updateUser = async function(request, response) {
+    await User.update(request.params.userId, request.body);
+    response.status(202).send();
 };
 
-const signUp = (request, response) => {
-    invitationModel.findByPk(request.body.invitationId).then(invitation => {
+const signUp = async function(request, response) {
+    try {
+        const invitation = await invitationModel.findByPk(request.body.invitationId);
         if (!invitation) {
             return response.status(404).send("Invitation doesn't exist");
         }
         request.body.email = invitation.email;
-        request.body["uuid"] = invitation.id;
-        console.log(request.body);
-        
-        User.create(request.body).then(user => {
-            invitation.destroy();
-            response.status(201).json({ id: user.id, isActive: user.isActive})
-        });
-    });
+        request.body["uuid"] = invitation.id;        
+        const user = await User.create(request.body);
+        await invitation.destroy();
+        response.status(201).json({ id: user.id, isActive: user.isActive})
+    } catch(error) {
+        response.status(409).json(error);
+    }  
 };
 
 module.exports = {

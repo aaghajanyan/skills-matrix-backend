@@ -25,7 +25,16 @@ const addBodySchema = Joi.object().keys({
 });
 
 const updateBodySchema = Joi.object().keys({
-    password: Joi.string().regex(passwordExp)
+    password: Joi.string()
+        .regex(passwordExp),
+    fname: Joi.string()
+        .regex(nameExp),
+    lname: Joi.string()
+        .regex(nameExp),
+    branchName: Joi.string()
+        .regex(nameExp),
+    roleGroupId: Joi.number()
+        .integer()
 });
 
 const validateAddBody = (request, response, next) => {
