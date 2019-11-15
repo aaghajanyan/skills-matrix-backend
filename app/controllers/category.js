@@ -5,14 +5,13 @@ const {
     "skills_relation": skillRelationModel
 } = require("../sequelize/models");
 
-const getCategories = (_, response) => {
-    categoryModel
-        .findAll()
-        .then(categories => response.status(200).json(categories));
+const getCategories = async function(_, response) {
+    const categories = await categoryModel.findAll();
+    response.status(200).json(categories);
 };
 
-const getAll = (_, response) => {
-    categoryModel
+const getAll = async function(_, response) {
+    const categories = await categoryModel
         .findAll({
             include: [
                 {
@@ -50,15 +49,9 @@ const getAll = (_, response) => {
                 }
             ]
         })
-        .then(categories => {
-            response
-                .status(200)
-                .json(
-                    mergeRelatedCategories(
-                        JSON.parse(JSON.stringify(categories))
-                    )
-                );
-        });
+        response.status(200).json(mergeRelatedCategories(
+            JSON.parse(JSON.stringify(categories))
+        ));
 };
 
 const mergeRelatedCategories = categories => {
@@ -71,57 +64,51 @@ const mergeRelatedCategories = categories => {
     return categories;
 };
 
-const getCategory = (request, response) => {
-    categoryModel
-        .findByPk(request.params.categoryId)
-        .then(category => response.status(200).json(category));
+const getCategory = async function(request, response) {
+    const category = await categoryModel.findByPk(request.params.categoryId);
+    response.status(200).json(category);
 };
 
-const addCategory = (request, response) => {
-    const { relatedCategoryName, ...categoryData } = request.body;
-    categoryModel.findOne({ where: { name: categoryData.name} }).then(existingCategory => {
+const addCategory = async function(request, response) {
+    try {
+        const { relatedCategoryName, ...categoryData } = request.body;
+        const existingCategory = await categoryModel.findOne({ where: { name: categoryData.name} });
         if (!existingCategory) {
             if(relatedCategoryName) {
-                categoryModel.findOne({ where: { name: relatedCategoryName } }).then(relatedCategory => {
-                    if (relatedCategory !== null) {
-                        categoryModel.create(categoryData).then(category => {
-                            categoryRelationModel
-                                .create({ categoryId: category.id, relatedCategoryId: relatedCategory.id })
-                                .then(categoryRelation => {
-                                    response.status(201).json({
-                                        categoryId: categoryRelation.categoryId,
-                                        relatedCategoryId: categoryRelation.relatedCategoryId
-                                    });
-                                });
-                        });
-                    } else {
-                        response.status(409).send(`${relatedCategoryName} related category doesn't exist`);
-                    }
-                });
+                const relatedCategory = await categoryModel.findOne({ where: { name: relatedCategoryName } });
+                if (relatedCategory) {
+                    const category = await categoryModel.create(categoryData);
+                    const categoryRelation = await categoryRelationModel
+                        .create({ categoryId: category.id, relatedCategoryId: relatedCategory.id });
+                    response.status(201).json({
+                        categoryId: categoryRelation.categoryId,
+                        relatedCategoryId: categoryRelation.relatedCategoryId
+                    });
+                } else {
+                    response.status(409).send(`${relatedCategoryName} related category doesn't exist`);
+                }
             } else {
-                categoryModel
-                .create(request.body)
-                .then(category => response.status(201).json({ id: category.id }));
+                const category = await categoryModel.create(request.body);
+                response.status(201).json({ id: category.id });
             }
-            
         } else {
             response.status(409).send(`${categoryData.name} category already't exists`);
         }
+    } catch(error) {
+        response.status(409).send(error);
+    }
+}
+
+const updateCategory = async function(request, response) {
+    await categoryModel.update(request.body, 
+        { where: { id: request.params.categoryId }
     });
+    response.status(202).send();
 };
 
-const updateCategory = (request, response) => {
-    categoryModel
-        .update(request.body, {
-            where: { id: request.params.categoryId }
-        })
-        .then(_ => response.status(202).send());
-};
-
-const deleteCategory = (request, response) => {
-    categoryModel
-        .destroy({ where: { id: request.params.categoryId } })
-        .then(_ => response.status(202).send());
+const deleteCategory = async function(request, response) {
+    await categoryModel.destroy({ where: { id: request.params.categoryId } })
+    response.status(202).send();
 };
 
 module.exports = {
