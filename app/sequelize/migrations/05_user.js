@@ -40,6 +40,10 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             },
+            startedToWork: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
             roleGroupId: {
                 allowNull: false,
                 type: Sequelize.INTEGER,

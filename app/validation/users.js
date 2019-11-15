@@ -19,10 +19,9 @@ const addBodySchema = Joi.object().keys({
     branchName: Joi.string()
         .regex(nameExp)
         .required(),
+    startedToWork: Joi.date(),
     roleGroupId: Joi.number()
         .integer()
-        .disallow(Joi.ref("role_group"))
-        .required() 
 });
 
 const updateBodySchema = Joi.object().keys({

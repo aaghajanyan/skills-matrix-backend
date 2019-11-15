@@ -59,9 +59,14 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW
             },
+            startedToWork: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW
+            },
             roleGroupId: {
                 allowNull: false,
                 type: DataTypes.INTEGER,
+                defaultValue: 1
             }
         },
         {
