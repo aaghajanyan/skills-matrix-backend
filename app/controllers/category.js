@@ -9,7 +9,7 @@ const getCategories = async function(_, response) {
     const categories = await categoryModel.findAll();
     response.status(200).json(categories);
 };
-
+ 
 const getAll = async function(_, response) {
     const categories = await categoryModel
         .findAll({

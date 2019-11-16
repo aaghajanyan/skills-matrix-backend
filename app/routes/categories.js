@@ -11,10 +11,12 @@ const { validateAddBody, validateUpdateBody } = require("../validation/categorie
 
 const router = express.Router();
 
+const verify = require('../validation/token');
+
 router.get("/", getCategories);
 router.get("/all", getAll);
 router.get("/:categoryId", getCategory);
-router.post("/", validateAddBody, addCategory);
+router.post("/", validateAddBody, verify, addCategory);
 router.put("/:categoryId", validateUpdateBody, updateCategory);
 router.delete("/:categoryId", deleteCategory);
 

@@ -1,5 +1,8 @@
 const { user: userModel, invitation: invitationModel } = require("../sequelize/models");
 const User = require("../models/user");
+const tokenSecret = require("../../config/secretKey.json").token_secret;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const getUsers = async function(_, response) {
     const users = await userModel.findAll({ attributes: { exclude: ["password"] } });
@@ -34,9 +37,27 @@ const signUp = async function(request, response) {
     }  
 };
 
+const login = async function(request, response) {
+    try {
+        const user = await userModel.findOne({ where: { email: request.body.email } });
+        if(!user) {
+            return response.status(400).send("Email does not exists");
+        }
+        const validPassword = bcrypt.compareSync(request.body.password, user.password);
+        if(!validPassword) {
+            return response.status(400).send("Password is incorrect");
+        }
+        const token = jwt.sign({uuid: user.uuid}, tokenSecret);
+        response.header("auth-token", token).send(token);
+    } catch (err) {
+        response.send(err);
+    }
+}
+
 module.exports = {
     getUsers,
     getUser,
     updateUser,
-    signUp
+    signUp,
+    login
 };

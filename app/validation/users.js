@@ -37,6 +37,19 @@ const updateBodySchema = Joi.object().keys({
         .integer()
 });
 
+const loginBodySchema = Joi.object().keys({
+    email: Joi.string()
+        .email()
+        .required(),
+    password: Joi.string()
+        .regex(passwordExp)
+        .required(), 
+});
+
+const validateLoginBody = (request, response, next) => {
+    validateBody(request, response, next, loginBodySchema);
+};
+
 const validateAddBody = (request, response, next) => {
     validateBody(request, response, next, addBodySchema);
 };
@@ -55,5 +68,6 @@ function validateBody(request, response, next, schema) {
 
 module.exports = {
     validateAddBody,
-    validateUpdateBody
+    validateUpdateBody,
+    validateLoginBody
 };

@@ -1,17 +1,18 @@
 const { user: userModel } = require("../sequelize/models");
 const bcrypt = require("bcrypt");
 
-const saltRounds = 10;
 
 class User {
-    static create(data) {
-        data.password = bcrypt.hashSync(data.password, saltRounds);
+    static async create(data) {
+        const salt = await bcrypt.genSalt(10);
+        data.password = bcrypt.hashSync(data.password, salt);
         return userModel.create(data);
     }
 
-    static update(id, data) {
+    static async update(id, data) {
+        const salt = await bcrypt.genSalt(10);
         if (data.password) {
-            data.password = bcrypt.hashSync(data.password, saltRounds);
+            data.password = bcrypt.hashSync(data.password, salt);
         }
         return userModel.update(data, { where: { id: id } });
     }
