@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         {
             name: {
                 type: DataTypes.ENUM,
-                values: ['super_user', 'team_lead', 'visitor'],
+                values: rolesGroups,
                 allowNull: {
                     args: false,
                     msg: "Please enter name"
@@ -21,19 +21,16 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: false
         }
     );
-    
 
-	let rolesGroupsObjArr = [];
-	rolesGroups.forEach((rolegroup) => {
-		let roleGroupObj = {};
-		roleGroupObj.name=rolegroup
-		rolesGroupsObjArr.push(roleGroupObj);
-    })
-    RoleGroup.bulkCreate(rolesGroupsObjArr).catch(()=>{});
-
-    // console.log("G: ", BulkInsertion.getRoleGroupData());
-    // const rolesGroupsData = BulkInsertion.getRoleGroupData();
-    // RoleGroup.bulkCreate(rolesGroupsData).catch(()=>{});
+    RoleGroup.initDefaultValues = async function(models) {
+        let rolesGroupsObjArr = [];
+        rolesGroups.forEach(rolegroup => {
+            let roleGroupObj = {};
+            roleGroupObj.name = rolegroup;
+            rolesGroupsObjArr.push(roleGroupObj);
+        });
+        models.roles_groups.bulkCreate(rolesGroupsObjArr).catch(() => {});
+    }
 
     RoleGroup.associate = models => {
         RoleGroup.belongsToMany(models.roles, {
@@ -42,6 +39,6 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "roleGroupId",
             timestamps: false
         });
-	};
+    };
     return RoleGroup;
 };

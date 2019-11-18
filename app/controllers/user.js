@@ -34,7 +34,7 @@ const signUp = async function(request, response) {
         response.status(201).json({ id: user.id, isActive: user.isActive})
     } catch(error) {
         response.status(409).json(error);
-    }  
+    }
 };
 
 const login = async function(request, response) {
@@ -47,7 +47,11 @@ const login = async function(request, response) {
         if(!validPassword) {
             return response.status(400).send("Password is incorrect");
         }
-        const token = jwt.sign({uuid: user.uuid}, tokenSecret);
+        const token = jwt.sign({
+            uuid: user.uuid,
+            email: user.email,
+            roleGroupId: user.roleGroupId
+        }, tokenSecret);
         response.header("auth-token", token).send(token);
     } catch (err) {
         response.send(err);

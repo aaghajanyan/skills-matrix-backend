@@ -6,16 +6,6 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            roleId: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                onDelete: "CASCADE",
-                references: {
-                    model: "roles",
-                    key: "id",
-                    as: "roleId"
-                }
-            },
             roleGroupId: {
                 allowNull: false,
                 type: Sequelize.INTEGER,
@@ -25,8 +15,24 @@ module.exports = {
                     key: "id",
                     as: "roleGroupId"
                 }
+            },
+            roleId: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                onDelete: "CASCADE",
+                references: {
+                    model: "roles",
+                    key: "id",
+                    as: "roleId"
+                }
             }
-        });
+        }).then(() => queryInterface.addConstraint(
+            'roles_relations', 
+            ['roleId', 'roleGroupId'],
+            {
+                type: 'unique',
+                name: 'uniqueRoleRel'
+            }));
     },
     down: queryInterface => queryInterface.dropTable("roles_relations")
 };

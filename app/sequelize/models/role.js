@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
         {
             name: {
                 type: DataTypes.ENUM,
-				values: ['create_user', 'create_skill', 'update_skill', 'menage_team', 'visitor'],
-				defaultValue: 'visitor',
+                values: roles,
+                defaultValue: "visitor",
                 allowNull: {
                     args: false,
                     msg: "Please enter name"
@@ -21,21 +21,19 @@ module.exports = (sequelize, DataTypes) => {
         {
             timestamps: false
         }
-	);
+    );
 
-	let rolesObjArr = [];
-	roles.forEach((role) => {
-		let roleObj = {};
-		roleObj.name=role
-		rolesObjArr.push(roleObj);
-	})
-    Role.bulkCreate(rolesObjArr).catch(()=>{});
+    Role.initDefaultValues = async function(models) {
+        let rolesObjArr = [];
+        roles.forEach(role => {
+            let roleObj = {};
+            roleObj.name = role;
+            rolesObjArr.push(roleObj);
+        });
+        models.roles.bulkCreate(rolesObjArr).catch(() => {});
+    }
 
-	// console.log("R: ", BulkInsertion.getRoleData());
-    // const rolesData = BulkInsertion.getRoleData();
-    // Role.bulkCreate(rolesData).catch(()=>{});
-	
-	Role.associate = models => {
+    Role.associate = models => {
         Role.belongsToMany(models.roles_groups, {
             through: "role_relation",
             as: "roles",

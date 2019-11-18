@@ -1,3 +1,5 @@
+const roles = require("../config/config").roles;
+
 module.exports = {
     up: (queryInterface, Sequelize) => {
         return queryInterface.createTable("roles", {
@@ -9,7 +11,7 @@ module.exports = {
             name: {
                 unique: true,
                 allowNull: false,
-                type: Sequelize.ENUM('create_user', 'create_skill', 'update_skill', 'menage_team', 'visitor')
+                type: Sequelize.ENUM(roles)
             }
         });
     },

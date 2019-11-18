@@ -19,9 +19,12 @@ const addBodySchema = Joi.object().keys({
     branchName: Joi.string()
         .regex(nameExp)
         .required(),
-    startedToWork: Joi.date(),
+    startedToWorkDate: Joi.date()
+        .required(),
     roleGroupId: Joi.number()
-        .integer()
+        .integer(),
+    position: Joi.string()
+        .required()
 });
 
 const updateBodySchema = Joi.object().keys({
@@ -34,7 +37,27 @@ const updateBodySchema = Joi.object().keys({
     branchName: Joi.string()
         .regex(nameExp),
     roleGroupId: Joi.number()
-        .integer()
+        .integer(),
+    position: Joi.string().valid([
+        "Beginner SW Engineer",
+        "SW Engineer",
+        "Senior SW Engineer",
+        "Beginner QA Tester",
+        "QA Tester",
+        "SQE Analyst",
+        "Sr. Software Quality Engineer",
+        "QA Analyst",
+        "QA lead",
+        "Team lead",
+        "Graphic designer",
+        "technical manager",
+        "Senior Team lead",
+        "Project Manager",
+        "3D modeler",
+        "UIUX designer",
+        "SW Architect"
+    ]),
+    isActive: Joi.boolean()
 });
 
 const loginBodySchema = Joi.object().keys({
@@ -60,6 +83,7 @@ const validateUpdateBody = (request, response, next) => {
 
 function validateBody(request, response, next, schema) {
     const result = Joi.validate(request.body, schema);
+    console.log("result: ", result);
     if (result.error) {
         return response.status(400).json(result.error.details);
     }

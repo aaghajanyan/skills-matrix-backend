@@ -30,21 +30,21 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: {
                     args: false,
-                    msg: "Please enter a firstname"
+                    msg: "Please enter a firstname."
                 },
             },
             lname: {
                 type: DataTypes.STRING,
                 allowNull: {
                     args: false,
-                    msg: "Please enter a lastname"
+                    msg: "Please enter a lastname."
                 },
             },
             branchName: {
                 type: DataTypes.STRING,
                 allowNull: {
                     args: false,
-                    msg: "Please enter a branch name"
+                    msg: "Please enter a branch name."
                 },
             },
             uuid: {
@@ -59,18 +59,43 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW
             },
-            startedToWork: {
+            startedToWorkDate: {
                 type: DataTypes.DATE,
-                defaultValue: DataTypes.NOW,
                 allowNull: {
                     args: false,
-                    msg: "Please enter worked date"
+                    msg: "Please enter started to work date."
                 },
             },
             roleGroupId: {
                 allowNull: false,
                 type: DataTypes.INTEGER,
                 defaultValue: 1
+            },
+            position: {
+                type: DataTypes.ENUM,
+				values: [
+                    "Beginner SW Engineer",
+                    "SW Engineer",
+                    "Senior SW Engineer",
+                    "Beginner QA Tester",
+                    "QA Tester",
+                    "SQE Analyst",
+                    "Sr. Software Quality Engineer",
+                    "QA Analyst",
+                    "QA lead",
+                    "Team lead",
+                    "Graphic designer",
+                    "technical manager",
+                    "Senior Team lead",
+                    "Project Manager",
+                    "3D modeler",
+                    "UIUX designer",
+                    "SW Architect"
+                ],
+                allowNull: {
+                    args: false,
+                    msg: "Please choose your position"
+                }
             }
         },
         {

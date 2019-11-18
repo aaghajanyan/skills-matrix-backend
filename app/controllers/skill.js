@@ -14,16 +14,16 @@ const getSkill = async function (request, response) {
     response.status(200).json(skill);
 };
 
-const createSkillRelation = async function (skillId, categoryId) {
-    const skillRelation = await skillRelationModel.create({
-        skillId: skillId,
-        categoryId: categoryId
-    });
-    response.status(201).json({
-        id: skill.id,
-        relationId: skillRelation.id
-    });
-}
+// const createSkillRelation = async function (skillId, categoryId) {
+//     const skillRelation = await skillRelationModel.create({
+//         skillId: skillId,
+//         categoryId: categoryId
+//     });
+//     response.status(201).json({
+//         id: skill.id,
+//         relationId: skillRelation.id
+//     });
+// }
 
 
 // const addSkill1 = async function (request, response) {

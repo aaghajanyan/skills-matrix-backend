@@ -40,7 +40,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             },
-            startedToWork: {
+            startedToWorkDate: {
                 allowNull: false,
                 type: Sequelize.DATE
             },
@@ -53,6 +53,29 @@ module.exports = {
                     key: "id",
                     as: "roleGroupId"
                 }
+            },
+            position: {
+                unique: false,
+                allowNull: false,
+                type: Sequelize.ENUM(
+                    "Beginner SW Engineer",
+                    "SW Engineer",
+                    "Senior SW Engineer",
+                    "Beginner QA Tester",
+                    "QA Tester",
+                    "SQE Analyst",
+                    "Sr. Software Quality Engineer",
+                    "QA Analyst",
+                    "QA lead",
+                    "Team lead",
+                    "Graphic designer",
+                    "technical manager",
+                    "Senior Team lead",
+                    "Project Manager",
+                    "3D modeler",
+                    "UIUX designer",
+                    "SW Architect"
+                )
             }
         });
     },
