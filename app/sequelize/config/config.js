@@ -7,6 +7,6 @@ module.exports = {
       database: dbConfig.database,
       ...dbConfig.options
     },
-    roles: ['create_user', 'create_skill', 'update_skill', 'manage_team', 'visitor'],
-    rolesGroups: ['super_user', 'team_lead', 'visitor']
+    roles: ['create_user', 'create_skill', 'update_skill', 'manage_team', 'employee'],
+    rolesGroups: ['super_user', 'team_lead', 'employee']
   };

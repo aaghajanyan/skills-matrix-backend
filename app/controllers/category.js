@@ -3,101 +3,27 @@ const {
     skill: skillModel,
     "categories_relation": categoryRelationModel,
     "skills_relation": skillRelationModel
-} = require("../sequelize/models");
+} = require("../sequelize/models");  
+
+const Category = require("../models/category");
 
 const getCategories = async function(_, response) {
     const categories = await categoryModel.findAll();
+    if(categories && categories.length == 0) {
+        response.status(409).send(`Categories does not exist.`);
+        return;
+    }
     response.status(200).json(categories);
 };
  
-const getAll = async function(_, response) {
-    const categories = await categoryModel
-        .findAll({
-            include: [
-                {
-                    model: categoryModel,
-                    as: "relatedCategories",
-                    required: false,
-                    attributes: ["id", "name"],
-                    through: {
-                        model: categoryRelationModel,
-                        as: "categoryRelation",
-                        attributes: ["id"]
-                    }
-                },
-                {
-                    model: categoryModel,
-                    as: "relatedCategoriesRef",
-                    required: false,
-                    attributes: ["id", "name"],
-                    through: {
-                        model: categoryRelationModel,
-                        as: "categoryRelation",
-                        attributes: ["id"]
-                    }
-                },
-                {
-                    model: skillModel,
-                    as: "skills",
-                    required: false,
-                    attributes: ["id", "name"],
-                    through: {
-                        model: skillRelationModel,
-                        as: "skillRelation",
-                        attributes: ["id"]
-                    }
-                }
-            ]
-        })
-        response.status(200).json(mergeRelatedCategories(
-            JSON.parse(JSON.stringify(categories))
-        ));
-};
-
-const mergeRelatedCategories = categories => {
-    categories.forEach(category => {
-        category.relatedCategories = category.relatedCategories.concat(
-            category.relatedCategoriesRef
-        );
-        delete category.relatedCategoriesRef;
-    });
-    return categories;
-};
-
 const getCategory = async function(request, response) {
     const category = await categoryModel.findByPk(request.params.categoryId);
+    if(!category) {
+        response.status(409).send(`Category with ${request.params.categoryId} id does not exist.`);
+        return;
+    }
     response.status(200).json(category);
 };
-
-const addCategory = async function(request, response) {
-    try {
-        const { relatedCategoryName, ...categoryData } = request.body;
-        const existingCategory = await categoryModel.findOne({ where: { name: categoryData.name} });
-        if (!existingCategory) {
-            if(relatedCategoryName) {
-                const relatedCategory = await categoryModel.findOne({ where: { name: relatedCategoryName } });
-                if (relatedCategory) {
-                    const category = await categoryModel.create(categoryData);
-                    const categoryRelation = await categoryRelationModel
-                        .create({ categoryId: category.id, relatedCategoryId: relatedCategory.id });
-                    response.status(201).json({
-                        categoryId: categoryRelation.categoryId,
-                        relatedCategoryId: categoryRelation.relatedCategoryId
-                    });
-                } else {
-                    response.status(409).send(`${relatedCategoryName} related category doesn't exist`);
-                }
-            } else {
-                const category = await categoryModel.create(request.body);
-                response.status(201).json({ id: category.id });
-            }
-        } else {
-            response.status(409).send(`${categoryData.name} category already't exists`);
-        }
-    } catch(error) {
-        response.status(409).send(error);
-    }
-}
 
 const updateCategory = async function(request, response) {
     await categoryModel.update(request.body, 
@@ -111,11 +37,158 @@ const deleteCategory = async function(request, response) {
     response.status(202).send();
 };
 
+const includeModel = (modelName, alians, required, attributes, through_modelName, through_alians, through_attributes) => {
+    return {
+        model: modelName,
+        as: alians,
+        required: required,
+        attributes: attributes,
+        through: {
+            model: through_modelName,
+            as: through_alians,
+            attributes: through_attributes
+        }
+    }
+}
+
+const getCategoriesAllData = async function(_, response) {
+    const categories = await categoryModel
+        .findAll({
+            include: [
+                {
+                    model: categoryModel,
+                    as: "relatedCategories",
+                    required: false,
+                    attributes: ["id", "name"],
+                    through: {
+                        model: categoryRelationModel,
+                        as: "categoryRelation",
+                        attributes: []
+                    },
+                    include: includeModel(skillModel, 'skills', false, ['id', 'name'], skillRelationModel, 'skillRelation', [])
+                },
+                {
+                    model: categoryModel,
+                    as: "relatedCategoriesRef",
+                    required: false,
+                    attributes: ["id", "name"],
+                    through: {
+                        model: categoryRelationModel,
+                        as: "categoryRelation",
+                        attributes: []
+                    },
+                    include: includeModel(skillModel, 'skills', false, ['id', 'name'], skillRelationModel, 'skillRelation', [])
+                },
+                includeModel(skillModel, 'skills', false, ['id', 'name'], skillRelationModel, 'skillRelation', [])
+            ]
+        })
+        response.status(200).json(mergeRelatedCategories(
+            JSON.parse(JSON.stringify(categories))
+        ));
+};
+
+const getCategoryAllData = async function(request, response) {
+    const categories = await categoryModel
+        .findByPk(request.params.categoryId, {
+            include: [
+                {
+                    model: categoryModel,
+                    as: "relatedCategories",
+                    required: false,
+                    attributes: ["id", "name"],
+                    through: {
+                        model: categoryRelationModel,
+                        as: "categoryRelation",
+                        attributes: []
+                    },
+                    include: includeModel(skillModel, 'skills', false, ['id', 'name'], skillRelationModel, 'skillRelation', [])
+                },
+                {
+                    model: categoryModel,
+                    as: "relatedCategoriesRef",
+                    required: false,
+                    attributes: ["id", "name"],
+                    through: {
+                        model: categoryRelationModel,
+                        as: "categoryRelation",
+                        attributes: []
+                    },
+                    include: includeModel(skillModel, 'skills', false, ['id', 'name'], skillRelationModel, 'skillRelation', [])
+                },
+                includeModel(skillModel, 'skills', false, ['id', 'name'], skillRelationModel, 'skillRelation', [])
+            ]
+        });
+        response.status(200).json(categories);
+};
+
+const mergeRelatedCategories = categories => {
+    categories.forEach(category => {
+        category.relatedCategories = category.relatedCategories.concat(
+            category.relatedCategoriesRef
+        );
+        delete category.relatedCategoriesRef;
+    });
+    return categories;
+};
+
+const addCategory = async function (request, response) {
+    const sendedList = [];
+    const { relatedCategoriesIds, skillsIds, ... categoryData} = request.body;
+    const newCategory = await categoryModel.findOrCreate({
+        where: { name: categoryData.name }
+    });
+
+    if(!newCategory[1]) {
+        response.status(409).send(`${categoryData.name} category already exist`);
+        return;
+    }
+    await Category.addRelatedCategories(relatedCategoriesIds, newCategory[0], sendedList);
+    await Category.addSkills(skillsIds, newCategory[0], sendedList);
+    response.status(201).json({
+        'addRelatedCategories': sendedList.addedCategories,
+        'addedSkills': sendedList.addedSkills
+    }); 
+};
+
+const updateCategoryAllData = async function (request, response) {
+    try {
+        const sendedList = [];
+        const { addedCategories, removedCategories, addedskills, removedSkills, ...categoryData} = request.body;
+        const existingCategory = await categoryModel.findByPk(request.params.categoryId);
+    
+        if(!existingCategory) {
+            response.status(409).send(`Category with ${request.params.categoryId} id doesn't exist`);
+            return;
+        }
+    
+        await categoryModel.update(categoryData, 
+            { where: { id: request.params.categoryId }
+        });
+    
+        await Category.addRelatedCategories(addedCategories, existingCategory, sendedList);
+        await Category.removeRelatedCategories(removedCategories, existingCategory, sendedList);
+        await Category.addSkills(addedskills, existingCategory, sendedList);
+        await Category.removeSkills(removedSkills, existingCategory, sendedList);
+    
+        response.status(201).json({
+            'addRelatedCategories': sendedList.addedCategories,
+            'removedRelatedCategories': sendedList.removedCategories,
+            'addedSkills': sendedList.addedSkills,
+            'removedSkills': sendedList.removedSkills
+        }); 
+    } catch(err) {
+        response.status(409).send(`Category with ${request.body.name} name already exists`);
+        return;
+    }
+};
+
 module.exports = {
     getCategories,
     getCategory,
     addCategory,
     updateCategory,
+    updateCategoryAllData,
     deleteCategory,
-    getAll
+    getCategoriesAllData,
+    getCategoryAllData
 };

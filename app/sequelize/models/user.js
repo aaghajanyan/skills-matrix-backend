@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
             roleGroupId: {
                 allowNull: false,
                 type: DataTypes.INTEGER,
-                defaultValue: 1
+                defaultValue: 3
             },
             position: {
                 type: DataTypes.ENUM,
@@ -102,5 +102,12 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: false
         }
     );
+    User.associate = models => {
+        User.belongsTo(models.roles_groups, {
+            as: "roleGroup",
+            foreignKey: "roleGroupId",
+            targetkey: 'id'
+        });
+    };
     return User;
 };

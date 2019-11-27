@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             name: {
                 type: DataTypes.ENUM,
                 values: roles,
-                defaultValue: "visitor",
+                defaultValue: "employee",
                 allowNull: {
                     args: false,
                     msg: "Please enter name"
@@ -23,20 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
 
-    Role.initDefaultValues = async function(models) {
-        let rolesObjArr = [];
-        roles.forEach(role => {
-            let roleObj = {};
-            roleObj.name = role;
-            rolesObjArr.push(roleObj);
-        });
-        models.roles.bulkCreate(rolesObjArr).catch(() => {});
-    }
-
     Role.associate = models => {
         Role.belongsToMany(models.roles_groups, {
-            through: "role_relation",
-            as: "roles",
+            through: "roles_relations",
+            as: "roleGroup",
             foreignKey: "roleId",
             timestamps: false
         });

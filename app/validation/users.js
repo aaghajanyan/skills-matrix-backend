@@ -83,7 +83,6 @@ const validateUpdateBody = (request, response, next) => {
 
 function validateBody(request, response, next, schema) {
     const result = Joi.validate(request.body, schema);
-    console.log("result: ", result);
     if (result.error) {
         return response.status(400).json(result.error.details);
     }

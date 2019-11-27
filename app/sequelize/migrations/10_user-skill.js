@@ -16,14 +16,14 @@ module.exports = {
                     as: "userId"
                 }
             },
-            skillRelId: {
+            skillId: {
                 allowNull: false,
                 type: Sequelize.INTEGER,
                 onDelete: "CASCADE",
                 references: {
-                    model: "skills_relations",
+                    model: "skills",
                     key: "id",
-                    as: "skillRelId"
+                    as: "skilllId"
                 }
             },
             currentMark: {

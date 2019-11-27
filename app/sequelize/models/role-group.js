@@ -22,20 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
 
-    RoleGroup.initDefaultValues = async function(models) {
-        let rolesGroupsObjArr = [];
-        rolesGroups.forEach(rolegroup => {
-            let roleGroupObj = {};
-            roleGroupObj.name = rolegroup;
-            rolesGroupsObjArr.push(roleGroupObj);
-        });
-        models.roles_groups.bulkCreate(rolesGroupsObjArr).catch(() => {});
-    }
-
     RoleGroup.associate = models => {
         RoleGroup.belongsToMany(models.roles, {
             through: "roles_relations",
-            as: "rols",
+            as: "roles",
             foreignKey: "roleGroupId",
             timestamps: false
         });

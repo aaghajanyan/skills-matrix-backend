@@ -2,10 +2,12 @@ const Joi = require("joi");
 
 const addBodySchema = Joi.object().keys({
     name: Joi.string().required(),
-    categoryName: Joi.string().required()
+    categoriesId: Joi.array().required()
 });
 const updateBodySchema = Joi.object().keys({
-    name: Joi.string()
+    name: Joi.string(),
+    addCategories: Joi.array(),
+    deleteCategories: Joi.array()
 });
 
 const validateAddBody = (request, response, next) => {

@@ -3,6 +3,7 @@ const {
     category: categoryModel,
     "skills_relation": skillRelationModel
 } = require("../sequelize/models");
+const Skill = require("../models/skill");
 
 const getSkills = async function (_, response) {
     const skills = await skillModel.findAll();
@@ -14,196 +15,85 @@ const getSkill = async function (request, response) {
     response.status(200).json(skill);
 };
 
-// const createSkillRelation = async function (skillId, categoryId) {
-//     const skillRelation = await skillRelationModel.create({
-//         skillId: skillId,
-//         categoryId: categoryId
-//     });
-//     response.status(201).json({
-//         id: skill.id,
-//         relationId: skillRelation.id
-//     });
-// }
-
-
-// const addSkill1 = async function (request, response) {
-//     const arr = [1, 2, 3];
-//     arr.map(i => {
-//         if (i.done == true) {
-//             console.log("done i = ", i);
-
-
-//             response.status(201).json({
-//                 id: i
-//             });
-//         }
-//         console.log("i = ", i);
-
-//     });
-// }
-// const addSkill = async function (request, response) {
-//     const {
-//         categoriesNames,
-//         ...skillData
-//     } = request.body;
-//     const arr = [];
-//     Object.keys(categoriesNames).map(i => arr.push(categoriesNames[i]));
-//     let itemsCount = arr.length;
-
-//     const sendedList = [];
-//     if (itemsCount) {
-//         arr.map(async function (categoryName) {
-//             const category = await categoryModel.findOne({
-//                 where: {
-//                     name: categoryName
-//                 }
-//             });
-//             if (category) {
-//                 const existingSkill = await skillModel.findOne({
-//                     where: {
-//                         name: skillData.name
-//                     }
-//                 });
-//                 if (!existingSkill) {
-//                     const skill = await skillModel.create(skillData);
-//                     // await createSkillRelation(skill.id, category.id);
-//                     const skillRelation = await skillRelationModel.create({
-//                         skillId: skill.id,
-//                         categoryId: category.id
-//                     });
-//                     sendedList.push({
-//                         id: skill.id,
-//                         relationId: skillRelation.id
-//                     });
-//                     // response.status(201).json({
-//                     //     id: skill.id,
-//                     //     relationId: skillRelation.id
-//                     // });
-//                 } else {
-//                     try {
-//                         // await createSkillRelation(existingSkill.id, category.id);
-
-//                         const skillRelation = await skillRelationModel.create({
-//                             skillId: existingSkill.id,
-//                             categoryId: category.id
-//                         });
-//                         sendedList.push({
-//                             id: existingSkill.id,
-//                             relationId: skillRelation.id
-//                         });
-
-//                         // response.status(201).json({
-//                         //     id: existingSkill.id,
-//                         //     relationId: skillRelation.id
-//                         // });
-//                     } catch (error) {
-//                         response.status(409).send(error);
-//                     }
-//                 }
-//             } else {
-//                 response.status(409).send(`${categoryName} category doesn't exist`);
-//             }
-//         });
-//         response.status(201).send(sendedList);
-//     } else {
-//         response.status(409).send("Required field <category> doesn't exist");
-//     }
-// };
-
-const addSkill = (request, response) => {
-    if (request.body.categoryName) {
-        const { categoryName, ...skillData } = request.body;
-        categoryModel.findOne({ where: { name: categoryName } }).then(category => {
-            if (category) {
-                skillModel.findOne({ where: { name: skillData.name } }).then(existingSkill => {
-                    if (!existingSkill) {
-                        skillModel.create(skillData).then(skill => {
-                            skillRelationModel
-                                .create({ skillId: skill.id, categoryId: category.id })
-                                .then(skillRelation => {
-                                    response.status(201).json({
-                                        id: skill.id,
-                                        relationId: skillRelation.id
-                                    });
-                                });
-                            });
-                    } else {
-                        skillRelationModel
-                            .create({ skillId: existingSkill.id, categoryId: category.id })
-                            .then(skillRelation => {
-                                response.status(201).json({
-                                    id: existingSkill.id,
-                                    relationId: skillRelation.id
-                                });
-                            }).catch(() => {
-                                response.status(409).send(`${skillData.name} skill already exists in ${category.name} category`);
-                            });
+const getSkillAllData = async function(request, response) {
+    const skills = await skillModel
+        .findByPk(request.params.skillId, {
+            include: [
+                {
+                    model: categoryModel,
+                    as: "categories",
+                    required: false,
+                    attributes: ["id", "name"],
+                    through: {
+                        model: skillRelationModel,
+                        as: "skillRelation",
+                        attributes: []
                     }
-                });
-            } else {
-                response.status(409).send(`${categoryName} category doesn't exist`);
-            }
+                }
+            ]
         });
-    } else {
-        response.status(409).send("Required field <category> doesn't exist");
-    }
+        response.status(200).json(skills);
 };
 
-// const addSkill = (request, response) => {
-//     if (request.body.categoryName) {
-//         const { categoryName, ...skillData } = request.body;
-//         categoryModel.findOne({ where: { name: categoryName } }).then(category => {
-//             if (category !== null) {
-//                 skillModel.findOne({ where: { name: skillData.name } }).then(existingSkill => {
-//                     if (!existingSkill) {
-//                         skillModel.create(skillData).then(skill => {
-//                             skillRelationModel
-//                                 .create({ skillId: skill.id, categoryId: category.id })
-//                                 .then(skillRelation => {
-//                                     response.status(201).json({
-//                                         id: skill.id,
-//                                         relationId: skillRelation.id
-//                                     });
-//                                 });
-//                             });
-//                     } else {
-//                         response.status(409).send(`${skillData.name} skill already exists`);
-//                     }
-//                 });
-//             } else {
-//                 response.status(409).send(`${categoryName} category doesn't exist`);
-//             }
-//         });
-//     } else {
-//         response.status(409).send("Required field <category> doesn't exist");
-//     }
-// };
+const getSkillsAllData = async function(request, response) {
+    const skills = await skillModel
+        .findAll({
+            include: [
+                {
+                    model: categoryModel,
+                    as: "categories",
+                    required: false,
+                    attributes: ["id", "name"],
+                    through: {
+                        model: skillRelationModel,
+                        as: "skillRelation",
+                        attributes: []
+                    }
+                }
+            ]
+        });
+        response.status(200).json(skills);
+};
 
-// const addSkill = (request, response) => {
-//     if (request.body.categoryId) {
-//         const { categoryId, ...skillData } = request.body;
-//         categoryModel.findByPk(categoryId).then(category => {
-//             if (category) {
-//                 skillModel.create(skillData).then(skill => {
-//                     skillRelationModel
-//                         .create({ skillId: skill.id, categoryId: categoryId })
-//                         .then(skillRelation => {
-//                             response.status(201).json({
-//                                 id: skill.id,
-//                                 relationId: skillRelation.id
-//                             });
-//                         });
-//                 });
-//             } else {
-//                 response.status(409).send("Category doesn't exist");
-//             }
-//         });
-//     } else {
-//         skillModel
-//             .create(request.body)
-//             .then(skill => response.status(201).json({ id: skill.id }));
-//     }
-// };
+const getStatus = async function(sendedList, keyName) {
+    let status = false;
+    sendedList[keyName].forEach((item) => {
+        if (item.success == true) {
+            status = true;
+        }
+    });
+    return status;
+}
+
+const addSkill = async function (request, response) {
+    const { categoriesId, ...skillData } = request.body;
+    const sendedList = [];
+    await Skill.addedNewCategories(categoriesId, skillData, sendedList, true);
+    let status = await getStatus(sendedList, 'addedCategories') ? 201 : 409;
+    response.status(status).json({
+        'addedCategories': sendedList.addedCategories
+    }); 
+};
+
+const updateSkillAllData = async function (request, response) {
+    const { addCategories, deleteCategories, ...skillData } = request.body;
+    const sendedList = [];
+    const existingSkill = await skillModel.findByPk(request.params.skillId);
+    
+    if(!existingSkill) {
+        response.status(409).send(`Skill with ${request.params.skillId} id doesn't exist`);
+        return;
+    }
+    await skillModel.update(skillData, 
+        { where: { id: request.params.skillId }
+    });
+    await Skill.addedNewCategories(addCategories, skillData, sendedList, false);
+    await Skill.removeCategories(deleteCategories, sendedList, request.params.skillId);
+    response.status(201).json({
+        'addedCategories': sendedList.addedCategories,
+        'removedCategories': sendedList.removedCategories,
+    });
+};
 
 const updateSkill = async function (request, response) {
     await skillModel.update(request.body, {
@@ -226,7 +116,10 @@ const deleteSkill = async function (request, response) {
 module.exports = {
     getSkills,
     getSkill,
+    getSkillAllData,
+    getSkillsAllData,
     addSkill,
     updateSkill,
+    updateSkillAllData,
     deleteSkill
 };
