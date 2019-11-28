@@ -12,7 +12,11 @@ module.exports = (sequelize, DataTypes) => {
                     args: true,
                     msg: "Category already exists"
                 }
-            }
+            },
+            guid: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+            },
         },
         {
             timestamps: false

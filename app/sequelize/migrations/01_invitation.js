@@ -6,6 +6,11 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING
             },
+            guid: {
+                unique: true,
+                allowNull: false,
+                type: Sequelize.UUID
+            },
             email: {
                 unique: true,
                 allowNull: false,

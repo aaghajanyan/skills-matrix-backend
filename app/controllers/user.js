@@ -22,6 +22,7 @@ const getUsers = async function(_, response) {
                 include: {
                     model: rolesModel,
                     as: "roles",
+                    attributes: ["name"],
                     required: false,
                     through: {
                         model: rolesRelationModel,
@@ -45,6 +46,7 @@ const getUser = async function(request, response) {
                 include: {
                     model: rolesModel,
                     as: "roles",
+                    attributes: ["name"],
                     required: false,
                     through: {
                         model: rolesRelationModel,
@@ -69,10 +71,10 @@ const signUp = async function(request, response) {
             return response.status(400).send("Invitation doesn't exist");
         }
         request.body.email = invitation.email;
-        request.body["uuid"] = invitation.id;        
+        request.body["guid"] = invitation.id;        
         const user = await User.create(request.body);
         await invitation.destroy();
-        response.status(201).json({ uuid: user.uuid })
+        response.status(201).json({ guid: user.guid })
     } catch {
         response.status(400).json("Bad request.");
     }
@@ -82,23 +84,33 @@ const login = async function(request, response) {
     try {
         const user = await userModel.findOne({ where: { email: request.body.email } });
         if(!user) {
-            return response.status(400).send('Email does not exists');
+            return response.status(400).send({
+                success: false,
+                message: 'Email does not exists'
+            });
         }
         const validPassword = bcrypt.compareSync(request.body.password, user.password);
         if(!validPassword) {
-            return response.status(400).send('Password is incorrect');
+            return response.status(400).send({
+                success: false,
+                message: 'Password is incorrect'
+            });
         }
         const token = jwt.sign(
             {
-                uuid: user.uuid,
+                guid: user.guid,
                 email: user.email,
+                isActive: user.isActive,
                 roleGroupId: user.roleGroupId,
                 createdDate: user.createdDate
             },
             tokenSecret,
             { expiresIn: '1 d' }
         );
-        response.header('Authorization', token).send(token);
+        response.header('Authorization', token).send({
+            success: true,
+            'token': token
+        });
     } catch (err) {
         response.send(err);
     }

@@ -5,11 +5,19 @@ const {
 
 const getCategoriesRelations = async function(_, response) {
     const categoriesRelations = await categoryRelationModel.findAll();
+    if(categoriesRelations && categoriesRelations.length == 0) {
+        response.status(409).send(`Relation categories does not exist.`);
+        return;
+    }
     response.status(200).json(categoriesRelations);
 };
 
 const getCategoryRelation = async function(request, response) {
     const categoryRelation = await categoryRelationModel.findByPk(request.params.categoryRelationId)
+    if(!categoryRelation) {
+        response.status(409).send(`Relation category does not exist.`);
+        return;
+    }
     response.status(200).json(categoryRelation);
 };
 

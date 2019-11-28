@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
                     msg: "Please enter a branch name."
                 },
             },
-            uuid: {
+            guid: {
                 type: DataTypes.UUID,
                 defaultValue: DataTypes.UUIDV4,
             },

@@ -6,6 +6,11 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
+            guid: {
+                unique: true,
+                allowNull: false,
+                type: Sequelize.UUID
+            },
             userSkillId: {
                 allowNull: false,
                 type: Sequelize.INTEGER,

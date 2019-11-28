@@ -27,7 +27,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            uuid: {
+            guid: {
                 unique: true,
                 allowNull: false,
                 type: Sequelize.UUID

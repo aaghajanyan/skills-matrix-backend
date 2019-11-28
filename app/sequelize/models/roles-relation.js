@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 type: DataTypes.INTEGER
             },
+            guid: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+            },
             roleGroupId: {
                 type: DataTypes.INTEGER,
                 allowNull: {

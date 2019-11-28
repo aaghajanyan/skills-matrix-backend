@@ -16,7 +16,11 @@ module.exports = (sequelize, DataTypes) => {
                     args: true,
                     msg: "Role already exists"
                 }
-            }
+            },
+            guid: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+            },
         },
         {
             timestamps: false

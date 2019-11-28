@@ -2,6 +2,10 @@ module.exports = (sequelize, DataTypes) => {
     const CategoryRelation = sequelize.define(
         "categories_relation",
         {
+            guid: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+            },
             categoryId: {
                 type: DataTypes.INTEGER,
                 allowNull: {

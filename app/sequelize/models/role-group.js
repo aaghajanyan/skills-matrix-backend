@@ -15,7 +15,11 @@ module.exports = (sequelize, DataTypes) => {
                     args: true,
                     msg: "Role group already exists"
                 }
-            }
+            },
+            guid: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+            },
         },
         {
             timestamps: false

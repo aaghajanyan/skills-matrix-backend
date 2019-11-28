@@ -14,7 +14,7 @@ class Category {
                 const obj = {
                     categoryId: category.id,
                     relatedCategoryId: categoryId,
-                    status: 'failed'
+                    success: false
                 };
     
                 if (relatedCategory) {
@@ -24,7 +24,7 @@ class Category {
                             relatedCategoryId: relatedCategory.id
                         }
                     });
-                    obj.status = 'passed';
+                    obj.success = true;
                 }
                 return obj;
             });
@@ -41,7 +41,7 @@ class Category {
                 const obj = {
                     categoryId: category.id,
                     relatedCategoryId: categoryId,
-                    status: 'failed'
+                    success: false
                 }
                 const categoryRelation = await categoryRelationModel.findOne({
                     where: {
@@ -51,7 +51,7 @@ class Category {
                 });
     
                 if (categoryRelation) {
-                    obj.status = 'passed';
+                    obj.status = true;
                     await categoryRelation.destroy();
                 }
                 return obj;
@@ -70,7 +70,7 @@ class Category {
                 const obj = {
                     categoryId: category.id,
                     skillId: skillId,
-                    status: 'failed'
+                    success: false
                 };
                 const existingSkill = await skillModel.findByPk(skillId);
     
@@ -81,7 +81,7 @@ class Category {
                             categoryId: category.id
                         }
                     });
-                    obj.status = 'passed';
+                    obj.success = true;
                 }
                 return obj;
             });
@@ -99,7 +99,7 @@ class Category {
                 const obj = {
                     categoryId: category.id,
                     skillId: delSkillId,
-                    status: 'failed'
+                    success: false
                 };
                 const skillRelation = await skillRelationModel.findOne({
                     where: {
@@ -109,7 +109,7 @@ class Category {
                 });
     
                 if (skillRelation) {
-                    obj.status = 'passed';
+                    obj.status = true;
                     skillRelation.destroy();
                 }
                 return obj;
