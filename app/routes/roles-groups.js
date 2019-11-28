@@ -7,6 +7,6 @@ const {
 const router = express.Router();
 
 router.get('/', getRoleGroups);
-router.get('/:roleGroupId', getRoleGroup);
+router.get('/:guid', getRoleGroup);
 
 module.exports = router;

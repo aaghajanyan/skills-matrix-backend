@@ -9,12 +9,12 @@ class User {
         return userModel.create(data);
     }
 
-    static async update(id, data) {
+    static async update(guid, data) {
         const salt = await bcrypt.genSalt(10);
         if (data.password) {
             data.password = bcrypt.hashSync(data.password, salt);
         }
-        return userModel.update(data, { where: { id: id } });
+        return userModel.update(data, { where: { guid: guid } });
     }
 }
 

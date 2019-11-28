@@ -6,58 +6,91 @@ const {
 const Skill = require("../models/skill");
 
 const getSkills = async function (_, response) {
-    const skills = await skillModel.findAll();
-    response.status(200).json(skills);
+    try {
+        const skills = await skillModel.findAll();
+        return response.status(200).json(skills);
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not get skills.`
+        });
+    }
 };
 
 const getSkill = async function (request, response) {
-    const skill = await skillModel.findByPk(request.params.skillId);
-    response.status(200).json(skill);
+    try {
+        const skill = await skillModel.findOne({where: {guid: request.params.guid}});
+        return response.status(200).json(skill);
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not get skill with ${request.params.guid} guid.`
+        });
+    }
 };
 
 const getSkillAllData = async function(request, response) {
-    const skills = await skillModel
-        .findByPk(request.params.skillId, {
-            include: [
-                {
-                    model: categoryModel,
-                    as: "categories",
-                    required: false,
-                    attributes: ["id", "name"],
-                    through: {
-                        model: skillRelationModel,
-                        as: "skillRelation",
-                        attributes: []
+    try {
+        const skill = await skillModel
+            .findOne({
+                where: {guid: request.params.guid},
+                include: [
+                    {
+                        model: categoryModel,
+                        as: "categories",
+                        required: false,
+                        attributes: ["id", "name"],
+                        through: {
+                            model: skillRelationModel,
+                            as: "skillRelation",
+                            attributes: []
+                        }
                     }
-                }
-            ]
+                ]
         });
-        response.status(200).json(skills);
+        return response.status(200).json(skill);
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not get skill with ${request.params.guid} guid.`
+        });
+    }
+
+    
 };
 
 const getSkillsAllData = async function(request, response) {
-    const skills = await skillModel
-        .findAll({
-            include: [
-                {
-                    model: categoryModel,
-                    as: "categories",
-                    required: false,
-                    attributes: ["id", "name"],
-                    through: {
-                        model: skillRelationModel,
-                        as: "skillRelation",
-                        attributes: []
+    try {
+        const skills = await skillModel
+            .findAll({
+                include: [
+                    {
+                        model: categoryModel,
+                        as: "categories",
+                        required: false,
+                        attributes: ["id", "name"],
+                        through: {
+                            model: skillRelationModel,
+                            as: "skillRelation",
+                            attributes: []
+                        }
                     }
-                }
-            ]
+                ]
         });
-        response.status(200).json(skills);
+        return response.status(200).json(skills);
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not get skills.`
+        });
+    }
+    
 };
 
 const getStatus = async function(sendedList, keyName) {
     let status = false;
     sendedList[keyName].forEach((item) => {
+        console.log("\n\n item: ", item);
         if (item.success == true) {
             status = true;
         }
@@ -66,51 +99,85 @@ const getStatus = async function(sendedList, keyName) {
 }
 
 const addSkill = async function (request, response) {
-    const { categoriesId, ...skillData } = request.body;
-    const sendedList = [];
-    await Skill.addedNewCategories(categoriesId, skillData, sendedList, true);
-    let status = await getStatus(sendedList, 'addedCategories') ? 201 : 409;
-    response.status(status).json({
-        'addedCategories': sendedList.addedCategories
-    }); 
+    try {
+        const { categoriesId, ...skillData } = request.body;
+        const sendedList = [];
+        await Skill.addedNewCategories(categoriesId, skillData, sendedList, true);
+        let status = await getStatus(sendedList, 'addedCategories') ? 201 : 409;
+        return response.status(status).json({
+            'addedCategories': sendedList.addedCategories,
+            ...sendedList
+        });
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not add new skill.`
+        });
+    }
+    
 };
 
 const updateSkillAllData = async function (request, response) {
-    const { addCategories, deleteCategories, ...skillData } = request.body;
-    const sendedList = [];
-    const existingSkill = await skillModel.findByPk(request.params.skillId);
-    
-    if(!existingSkill) {
-        response.status(409).send(`Skill with ${request.params.skillId} id doesn't exist`);
-        return;
+    try {
+        const { addCategories, deleteCategories, ...skillData } = request.body;
+        const sendedList = [];
+        const existingSkill = await skillModel.findOne({where : {guid: request.params.guid}});
+        
+        if(!existingSkill) {
+            response.status(409).send(`Skill with ${request.params.guid} id doesn't exist`);
+            return;
+        }
+        await skillModel.update(skillData, 
+            { where: { guid: request.params.guid }
+        });
+        await Skill.addedNewCategories(addCategories, skillData, sendedList, false);
+        await Skill.removeCategories(deleteCategories, sendedList, request.params.skillId);
+        return response.status(201).json({
+            'addedCategories': sendedList.addedCategories,
+            'removedCategories': sendedList.removedCategories,
+        });
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not get skill with ${request.params.guid} guid.`
+        });
     }
-    await skillModel.update(skillData, 
-        { where: { id: request.params.skillId }
-    });
-    await Skill.addedNewCategories(addCategories, skillData, sendedList, false);
-    await Skill.removeCategories(deleteCategories, sendedList, request.params.skillId);
-    response.status(201).json({
-        'addedCategories': sendedList.addedCategories,
-        'removedCategories': sendedList.removedCategories,
-    });
 };
 
 const updateSkill = async function (request, response) {
-    await skillModel.update(request.body, {
-        where: {
-            id: request.params.skillId
-        }
-    });
-    response.status(202).send();
+    try {
+        await skillModel.update(request.body, {
+            where: { guid: request.params.guid }
+        });
+        return response.status(202).send({success: true});
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not get skill with ${request.params.guid} guid.`
+        });
+    }
+    
 };
 
 const deleteSkill = async function (request, response) {
-    await skillModel.destroy({
-        where: {
-            id: request.params.skillId
+    try {
+        const skill = await skillModel.findOne({
+            where: { guid: request.params.guid }
+        });
+        if (!skill) {
+            return response.status(409).send({
+                success: false,
+                message: `Skill with ${request.params.guid} guid does not exists.`
+            });
         }
-    });
-    response.status(202).send();
+        skill.destroy();
+        return response.status(202).send({success: true});
+    } catch {
+        return response.status(409).send({
+            success: false,
+            message: `Could not delete skill with ${request.params.guid} guid.`
+        });
+    }
 };
 
 module.exports = {

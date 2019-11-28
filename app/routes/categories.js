@@ -18,12 +18,12 @@ const verifyToken = require('../validation/token');
 
 router.get("/", getCategories);
 router.get("/all", getCategoriesAllData);
-router.get("/all/:categoryId", getCategoryAllData);
+router.get("/all/:guid", getCategoryAllData);
 
-router.get("/:categoryId", getCategory);
+router.get("/:guid", getCategory);
 router.post("/", verifyToken, validateAddBody, addCategory);
-router.put("/:categoryId", validateUpdateBody, updateCategory);
-router.put("/all/:categoryId", validateUpdateBody, updateCategoryAllData);
-router.delete("/:categoryId", deleteCategory);
+router.put("/:guid", validateUpdateBody, updateCategory);
+router.put("/all/:guid", validateUpdateBody, updateCategoryAllData);
+router.delete("/:guid", deleteCategory);
 
 module.exports = router;

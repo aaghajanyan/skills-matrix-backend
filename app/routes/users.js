@@ -11,8 +11,8 @@ const { validateAddBody, validateUpdateBody, validateLoginBody } = require("../v
 const router = express.Router();
 
 router.get("/", getUsers);
-router.get("/:userId", getUser);
+router.get("/:guid", getUser);
+router.put("/:guid", validateUpdateBody, updateUser);
 router.post("/", validateAddBody, signUp);
-router.put("/:userId", validateUpdateBody, updateUser);
 router.post('/login', validateLoginBody, login);
 module.exports = router;

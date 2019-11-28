@@ -7,12 +7,13 @@ const {
 class Skill {
     static async addedNewCategories(categoriesId, skillData, sendedList, categoriesRequired) {
         sendedList.addedCategories = [];
-    
+        sendedList.errors = [];
+
         const errMessageReqCategory = {
-            message: 'Required field <category> doesn\'t exist',
+            message: 'Required field <categoriesId> doesn\'t exist or empty',
             success: false
         } 
-        if (categoriesId && categoriesId.length) {
+        if (categoriesId && categoriesId.length > 0) {
             const promise = categoriesId.map(async function (categoryId) {
                 const category = await categoryModel.findByPk(categoryId);
                 const message = {
@@ -50,7 +51,7 @@ class Skill {
             });
         } else {
             if (categoriesRequired) {
-                sendedList.push(errMessageReqCategory);
+                sendedList.errors.push(errMessageReqCategory);
             }
         }
     }

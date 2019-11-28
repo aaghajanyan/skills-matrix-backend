@@ -31,7 +31,7 @@ class Category {
             await Promise.all(promise).then((list) => {
                 sendedList.addedCategories.push(list);
             });
-        }    
+        }
     }
 
     static async removeRelatedCategories(removedCategories, category, sendedList) {

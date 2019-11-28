@@ -12,56 +12,79 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const getUsers = async function(_, response) {
-    const users = await userModel.findAll( 
-        { 
-            attributes: { exclude: ['password', 'roleGroupId'] } ,
-            include: {
-                model: rolesGroupsModel,
-                as: "roleGroup",
-                required: false,
+    try {
+        const users = await userModel.findAll( 
+            { 
+                attributes: { exclude: ['password', 'roleGroupId'] } ,
                 include: {
-                    model: rolesModel,
-                    as: "roles",
-                    attributes: ["name"],
+                    model: rolesGroupsModel,
+                    as: "roleGroup",
                     required: false,
-                    through: {
-                        model: rolesRelationModel,
-                        as: "roleRelation",
-                        attributes: []
+                    include: {
+                        model: rolesModel,
+                        as: "roles",
+                        attributes: ["name"],
+                        required: false,
+                        through: {
+                            model: rolesRelationModel,
+                            as: "roleRelation",
+                            attributes: []
+                        }
                     }
                 }
-            }
+            });
+        response.status(200).json(users);
+    } catch {
+        response.status(400).json({
+            success: false,
+            message: 'Could not get users.'
         });
-    response.status(200).json(users);
+    }
+    
 };
 
 const getUser = async function(request, response) {
-    const user = await userModel.findByPk(request.params.userId, 
-        { 
-            attributes: { exclude: ['password', 'roleGroupId'] } ,
-            include: {
-                model: rolesGroupsModel,
-                as: "roleGroup",
-                required: false,
+    try {
+        const user = await userModel.findOne( 
+            { 
+                where: { guid: request.params.guid } ,
+                attributes: { exclude: ['password', 'roleGroupId'] } ,
                 include: {
-                    model: rolesModel,
-                    as: "roles",
-                    attributes: ["name"],
+                    model: rolesGroupsModel,
+                    as: "roleGroup",
                     required: false,
-                    through: {
-                        model: rolesRelationModel,
-                        as: "roleRelation",
-                        attributes: []
+                    include: {
+                        model: rolesModel,
+                        as: "roles",
+                        attributes: ["name"],
+                        required: false,
+                        through: {
+                            model: rolesRelationModel,
+                            as: "roleRelation",
+                            attributes: []
+                        }
                     }
                 }
-            }
+            });
+        response.status(200).json(user);
+    } catch {
+        response.status(400).json({
+            success: false,
+            message: 'Could not get user.'
         });
-    response.status(200).json(user);
+    }
 };
 
 const updateUser = async function(request, response) {
-    await User.update(request.params.userId, request.body);
-    response.status(202).send();
+    try {
+        await User.update(request.params.guid, request.body);
+        return response.status(202).send({"success": true});
+    } catch {
+        return response.status(400).send({
+            success: false,
+            message: 'Could not update user'
+        });
+    }
 };
 
 const signUp = async function(request, response) {
@@ -86,14 +109,14 @@ const login = async function(request, response) {
         if(!user) {
             return response.status(400).send({
                 success: false,
-                message: 'Email does not exists'
+                message: 'Email does not exists.'
             });
         }
         const validPassword = bcrypt.compareSync(request.body.password, user.password);
         if(!validPassword) {
             return response.status(400).send({
                 success: false,
-                message: 'Password is incorrect'
+                message: 'Password is incorrect.'
             });
         }
         const token = jwt.sign(
@@ -112,7 +135,7 @@ const login = async function(request, response) {
             'token': token
         });
     } catch (err) {
-        response.send(err);
+        response.status(401).send('Unauthorized');
     }
 }
 

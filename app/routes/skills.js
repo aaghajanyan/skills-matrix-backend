@@ -15,13 +15,13 @@ const router = express.Router();
 
 router.get("/", getSkills);
 router.get("/all", getSkillsAllData);
-router.get("/:skillId", getSkill);
-router.get("/all/:skillId", getSkillAllData);
+router.get("/:guid", getSkill);
+router.get("/all/:guid", getSkillAllData);
 
 router.post("/", validateAddBody, addSkill);
 
-router.put("/:skillId", validateUpdateBody, updateSkill);
-router.put("/all/:skillId", validateUpdateBody, updateSkillAllData);
-router.delete("/:skillId", deleteSkill);
+router.put("/:guid", validateUpdateBody, updateSkill);
+router.put("/all/:guid", validateUpdateBody, updateSkillAllData);
+router.delete("/:guid", deleteSkill);
 
 module.exports = router;
