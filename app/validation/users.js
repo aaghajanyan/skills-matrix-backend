@@ -4,9 +4,6 @@ const passwordExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,24})/;
 const nameExp = /^[a-z]{2,20}$/i;
 
 const addBodySchema = Joi.object().keys({
-    invitationId: Joi.string()
-        .uuid()
-        .required(),
     password: Joi.string()
         .regex(passwordExp)
         .required(),
@@ -70,6 +67,8 @@ const loginBodySchema = Joi.object().keys({
 });
 
 const validateLoginBody = (request, response, next) => {
+    console.log("\n\n PASSED \n\n");
+
     validateBody(request, response, next, loginBodySchema);
 };
 
@@ -82,10 +81,13 @@ const validateUpdateBody = (request, response, next) => {
 };
 
 function validateBody(request, response, next, schema) {
+    console.log("\n\n PASSED \n\n");
+
     const result = Joi.validate(request.body, schema);
     if (result.error) {
         return response.status(400).json(result.error.details);
     }
+    console.log("\n\n PASSED \n\n");
     next();
 }
 

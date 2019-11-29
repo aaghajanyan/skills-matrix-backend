@@ -9,11 +9,13 @@ class Category {
     static async addRelatedCategories(relatedCategoriesIds, category, sendedList) {
         sendedList.addedCategories = [];
         if (relatedCategoriesIds && relatedCategoriesIds.length) {
-            const promise = relatedCategoriesIds.map(async function(categoryId) {
-                const relatedCategory = await categoryModel.findByPk(categoryId);
+            const promise = relatedCategoriesIds.map(async function(categoryGuid) {
+                const relatedCategory = await categoryModel.findOne({
+                    where: {guid: categoryGuid}
+                });
                 const obj = {
-                    categoryId: category.id,
-                    relatedCategoryId: categoryId,
+                    categoryGuid: category.guid,
+                    relatedCategoryGuid: categoryGuid,
                     success: false
                 };
     
@@ -37,19 +39,22 @@ class Category {
     static async removeRelatedCategories(removedCategories, category, sendedList) {
         sendedList.removedCategories = [];
         if (removedCategories && removedCategories.length) {
-            const promise = removedCategories.map(async function(categoryId) {
+            const promise = removedCategories.map(async function(categoryGuid) {
+                const relatedCategory = await categoryModel.findOne({
+                    where: {guid: categoryGuid}
+                });
                 const obj = {
-                    categoryId: category.id,
-                    relatedCategoryId: categoryId,
+                    categoryGuid: category.guid,
+                    relatedCategoryGuid: categoryGuid,
                     success: false
                 }
                 const categoryRelation = await categoryRelationModel.findOne({
                     where: {
                         categoryId: category.id,
-                        relatedCategoryId: categoryId
+                        relatedCategoryId: relatedCategory.id
                     }
                 });
-    
+
                 if (categoryRelation) {
                     obj.status = true;
                     await categoryRelation.destroy();
@@ -66,18 +71,20 @@ class Category {
     static async addSkills(skillsIds, category, sendedList) {
         sendedList.addedSkills = [];
         if (skillsIds && skillsIds.length) {
-            const promise = skillsIds.map(async function(skillId) {
+            const promise = skillsIds.map(async function(skillGuid) {
                 const obj = {
-                    categoryId: category.id,
-                    skillId: skillId,
+                    categoryGuid: category.guid,
+                    skillGuid: skillGuid,
                     success: false
                 };
-                const existingSkill = await skillModel.findByPk(skillId);
+                const existingSkill = await skillModel.findOne({
+                    where: {guid: skillGuid}
+                });
     
                 if (existingSkill) {
                     await skillRelationModel.findOrCreate({
                         where: {
-                            skillId: skillId,
+                            skillId: existingSkill.id,
                             categoryId: category.id
                         }
                     });
@@ -95,16 +102,16 @@ class Category {
     static async removeSkills(removedSkills, category, sendedList) {
         sendedList.removedSkills = [];
         if (removedSkills && removedSkills.length) {
-            const promise = removedSkills.map(async function(delSkillId) {
+            const promise = removedSkills.map(async function(skillGuid) {
                 const obj = {
-                    categoryId: category.id,
-                    skillId: delSkillId,
+                    categoryGuid: category.guid,
+                    skillGuid: skillGuid,
                     success: false
                 };
                 const skillRelation = await skillRelationModel.findOne({
                     where: {
-                        skillId: delSkillId,
-                        categoryId: category.id
+                        skillGuid: skillGuid,
+                        categoryGuid: category.guid
                     }
                 });
     

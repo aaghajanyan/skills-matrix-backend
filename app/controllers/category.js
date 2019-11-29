@@ -164,7 +164,6 @@ const getCategoryAllData = async function(request, response) {
             message: `Could not get category with ${request.params.guid} guid.`
         });
     }
-    
 };
 
 const mergeRelatedCategories = categories => {
@@ -191,6 +190,8 @@ const addCategory = async function (request, response) {
         await Category.addRelatedCategories(relatedCategoriesIds, newCategory[0], sendedList);
         await Category.addSkills(skillsIds, newCategory[0], sendedList);
         return response.status(201).json({
+            'name': newCategory[0].name,
+            'guid': newCategory[0].guid,
             'addRelatedCategories': sendedList.addedCategories,
             'addedSkills': sendedList.addedSkills
         });
@@ -228,7 +229,7 @@ const updateCategoryAllData = async function (request, response) {
             'addedSkills': sendedList.addedSkills,
             'removedSkills': sendedList.removedSkills
         }); 
-    } catch(err) {
+    } catch {
         return response.status(409).send({
             success: false,
             message: `Category with ${request.body.name} name already exists`

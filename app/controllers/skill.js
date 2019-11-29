@@ -99,20 +99,37 @@ const getStatus = async function(sendedList, keyName) {
 }
 
 const addSkill = async function (request, response) {
-    try {
-        const { categoriesId, ...skillData } = request.body;
-        const sendedList = [];
-        await Skill.addedNewCategories(categoriesId, skillData, sendedList, true);
-        let status = await getStatus(sendedList, 'addedCategories') ? 201 : 409;
-        return response.status(status).json({
-            'addedCategories': sendedList.addedCategories,
-            ...sendedList
-        });
-    } catch {
-        return response.status(409).send({
-            success: false,
-            message: `Could not add new skill.`
-        });
+    const errMessageReqCategory = {
+        message: 'Required field <categoriesId> doesn\'t exist or empty',
+        success: false
+    } 
+    const { categoriesId, ...skillData } = request.body;
+    if (categoriesId && categoriesId.length > 0) {
+        try {
+            const skill = await skillModel.findOrCreate({
+                where: { name: skillData.name }
+            });
+            if(!skill[1]) {
+                response.status(409).send(`${skillData.name} skill already exist`);
+                return;
+            }
+            const sendedList = [];
+            await Skill.addedNewCategories(categoriesId, skill[0], sendedList, true);
+            let status = await getStatus(sendedList, 'addedCategories') ? 201 : 409;
+            return response.status(status).json({
+                'name': skill[0].name,
+                'guid': skill[0].guid,
+                'addedCategories': sendedList.addedCategories,
+                ...sendedList
+            });
+        } catch {
+            return response.status(409).send({
+                success: false,
+                message: `Could not add new skill.`
+            });
+        }
+    } else {
+        sendedList.errors.push(errMessageReqCategory);
     }
     
 };
@@ -130,8 +147,8 @@ const updateSkillAllData = async function (request, response) {
         await skillModel.update(skillData, 
             { where: { guid: request.params.guid }
         });
-        await Skill.addedNewCategories(addCategories, skillData, sendedList, false);
-        await Skill.removeCategories(deleteCategories, sendedList, request.params.skillId);
+        await Skill.addedNewCategories(addCategories, existingSkill, sendedList, false);
+        await Skill.removeCategories(deleteCategories, sendedList, existingSkill);
         return response.status(201).json({
             'addedCategories': sendedList.addedCategories,
             'removedCategories': sendedList.removedCategories,

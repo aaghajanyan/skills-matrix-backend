@@ -5,37 +5,39 @@ const {
 } = require("../sequelize/models");
 
 class Skill {
-    static async addedNewCategories(categoriesId, skillData, sendedList, categoriesRequired) {
+    static async addedNewCategories(categoriesId, skill, sendedList, categoriesRequired) {
         sendedList.addedCategories = [];
         sendedList.errors = [];
-
-        const errMessageReqCategory = {
-            message: 'Required field <categoriesId> doesn\'t exist or empty',
-            success: false
-        } 
+        
         if (categoriesId && categoriesId.length > 0) {
-            const promise = categoriesId.map(async function (categoryId) {
-                const category = await categoryModel.findByPk(categoryId);
+            const promise = categoriesId.map(async function (categoryGuid) {
+                const category = await categoryModel.findOne({
+                    where: {guid: categoryGuid}
+                });
                 const message = {
-                    message: `Category with ${categoryId} category doesn't exist`,
+                    message: `Category with ${categoryGuid} guid doesn't exist`,
                     success: false
                 }
     
                 if (category) {
-                    const skill = await skillModel.findOrCreate({
-                        where: { name: skillData.name }
-                    });
+                    // const skill = await skillModel.findOrCreate({
+                    //     where: { name: skillData.name }
+                    // });
+                    console.log("....44");
+                    console.log("....\n", skill);
+                    console.log("....\n", skill.id);
+
                     const skillRelation = await skillRelationModel.findOrCreate({
                         where: {
-                            skillId: skill[0].id,
+                            skillId: skill.id,
                             categoryId: category.id
                         }
                     });
-    
+
                     return {
-                        id: skill[0].id,
-                        name: skill[0].name,
-                        categoryId: category.id,
+                        id: skill.id,
+                        name: skill.name,
+                        categoryGuid: category.guid,
                         categoryName: category.name,
                         skillRelationId: skillRelation[0].id,
                         success: true
@@ -56,18 +58,22 @@ class Skill {
         }
     }
     
-    static async removeCategories(removedCategories, sendedList, skillId) {
+    static async removeCategories(removedCategories, sendedList, skill) {
         sendedList.removedCategories = [];
         if (removedCategories && removedCategories.length) {
-            const promise = removedCategories.map(async function(categoryId) {
+            const promise = removedCategories.map(async function(categoryGuid) {
+                const category = await categoryModel.findOne({
+                    where: {guid: categoryGuid}
+                });
+
                 const obj = {
-                    categoryId: categoryId,
+                    categoryGuid: categoryGuid,
                     status: 'failed'
                 }
                 const existingSkillCategory = await skillRelationModel.findOne({
                     where: {
-                        skillId: skillId,
-                        categoryId: categoryId
+                        skillId: skill.id,
+                        categoryId: category.id
                     }
                 });
     
