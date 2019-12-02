@@ -90,7 +90,6 @@ const getSkillsAllData = async function(request, response) {
 const getStatus = async function(sendedList, keyName) {
     let status = false;
     sendedList[keyName].forEach((item) => {
-        console.log("\n\n item: ", item);
         if (item.success == true) {
             status = true;
         }

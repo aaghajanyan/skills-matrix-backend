@@ -67,8 +67,6 @@ const loginBodySchema = Joi.object().keys({
 });
 
 const validateLoginBody = (request, response, next) => {
-    console.log("\n\n PASSED \n\n");
-
     validateBody(request, response, next, loginBodySchema);
 };
 
@@ -81,13 +79,10 @@ const validateUpdateBody = (request, response, next) => {
 };
 
 function validateBody(request, response, next, schema) {
-    console.log("\n\n PASSED \n\n");
-
     const result = Joi.validate(request.body, schema);
     if (result.error) {
         return response.status(400).json(result.error.details);
     }
-    console.log("\n\n PASSED \n\n");
     next();
 }
 

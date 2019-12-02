@@ -32,9 +32,15 @@ const addInvitation = async function(request, response) {
                     tokenSecret,
                     { expiresIn: '3 m' }
                 );
-                await MailSender.sendEmail('http://localhost:3002/users/', token).catch((err) => {
-                    console.log('Error: ', err);
-                });
+                try {
+                    await MailSender.sendEmail('http://localhost:3002/users', token, request.body.email);
+                } catch(err) {
+                    currInvitation.destroy();
+                    return response.status(400).send({
+                        success: false,
+                        message: 'Could not send email'
+                    });
+                };
                 return response.status(200).json({
                     success: true,
                     'token': token,
@@ -47,8 +53,7 @@ const addInvitation = async function(request, response) {
             response.status(409).send('Email already exists in invitations');
         }
     } catch(error) {
-        console.log("\n\n EEEE \n\n");
-        response.status(409).send(error);
+        return response.status(409).send(error);
     }
 }
 

@@ -20,13 +20,6 @@ class Skill {
                 }
     
                 if (category) {
-                    // const skill = await skillModel.findOrCreate({
-                    //     where: { name: skillData.name }
-                    // });
-                    console.log("....44");
-                    console.log("....\n", skill);
-                    console.log("....\n", skill.id);
-
                     const skillRelation = await skillRelationModel.findOrCreate({
                         where: {
                             skillId: skill.id,

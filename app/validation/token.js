@@ -32,5 +32,4 @@ async function verifyRegisterToken(request, response, next) {
     }
 }
 
-
 module.exports = {verifyLoginToken, verifyRegisterToken};

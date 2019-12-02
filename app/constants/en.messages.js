@@ -12,12 +12,8 @@ let messages = {
         'success': 'success',
     },
     Skills: {
-        "cleareAll": "Clear All",
-        "title": "WORKOUT PROGRAMS",
-        "sortBy": "Sort by:"
     },
     Categories: {
-        "feedback": "FeedBack"
     }
 };
 

@@ -112,11 +112,7 @@ const signUp = async function(request, response) {
 };
 
 const login = async function(request, response) {
-    console.log("/n/n uuuuuuu \n\n");
-
     try {
-        console.log("/n/n uuuuuuu \n\n");
-
         const user = await userModel.findOne({ where: { email: request.body.email } });
         if(!user) {
             return response.status(400).send({
@@ -131,8 +127,6 @@ const login = async function(request, response) {
                 message: Messages.get("Users.errors.password")
             });
         }
-        console.log("/n/n uuuuuuu \n\n");
-
         const token = jwt.sign(
             {
                 guid: user.guid,
@@ -144,7 +138,6 @@ const login = async function(request, response) {
             tokenSecret,
             { expiresIn: '1 d' }
         );
-        console.log("/n/n uuuuuuu \n\n");
         response.header('Authorization', token).send({
             success: true,
             'token': token
